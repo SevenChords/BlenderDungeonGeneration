@@ -50,43 +50,43 @@ class DungeonTile:
             self.display = "::"
 
 def generateTestDungeon():
-    dungeonArray = [[0 for i in range(7)] for i in range(7)]
+    dungeonArray = {}
     for i in range(7):
         for j in range(7):
             if i == 0:
                 if j <= 1:
-                    dungeonArray[i][j] = DungeonTile(TileType.WALL, TileDecoration.CLEAN, 1)
+                    dungeonArray[i, j] = DungeonTile(TileType.WALL, TileDecoration.CLEAN, 1)
                 elif j <= 3:
-                    dungeonArray[i][j] = DungeonTile(TileType.WALL, TileDecoration.OVERGROWN, 1)
+                    dungeonArray[i, j] = DungeonTile(TileType.WALL, TileDecoration.OVERGROWN, 1)
                 elif j <= 5:
-                    dungeonArray[i][j] = DungeonTile(TileType.WALL, TileDecoration.CRACKED, 1)
+                    dungeonArray[i, j] = DungeonTile(TileType.WALL, TileDecoration.CRACKED, 1)
                 else:
-                    dungeonArray[i][j] = DungeonTile(TileType.WALL, TileDecoration.CLEAN, 1)
+                    dungeonArray[i, j] = DungeonTile(TileType.WALL, TileDecoration.CLEAN, 1)
             elif i <= 2:
                 if j <= 1:
-                    dungeonArray[i][j] = DungeonTile(TileType.FLOOR, TileDecoration.CLEAN, 1)
+                    dungeonArray[i, j] = DungeonTile(TileType.FLOOR, TileDecoration.CLEAN, 1)
                 elif j <= 4:
-                    dungeonArray[i][j] = DungeonTile(TileType.FLOOR, TileDecoration.OVERGROWN, 1)
+                    dungeonArray[i, j] = DungeonTile(TileType.FLOOR, TileDecoration.OVERGROWN, 1)
                 else:
-                    dungeonArray[i][j] = DungeonTile(TileType.FLOOR, TileDecoration.CRACKED, 1)
+                    dungeonArray[i, j] = DungeonTile(TileType.FLOOR, TileDecoration.CRACKED, 1)
             elif i <= 4:
                 if j <= 1:
-                    dungeonArray[i][j] = DungeonTile(TileType.FLOOR, TileDecoration.PUDDLE, 1)
+                    dungeonArray[i, j] = DungeonTile(TileType.FLOOR, TileDecoration.PUDDLE, 1)
                 elif j <= 4:
-                    dungeonArray[i][j] = DungeonTile(TileType.FLOOR_WITH_OBJECT, TileDecoration.CLEAN, 2)
+                    dungeonArray[i, j] = DungeonTile(TileType.FLOOR_WITH_OBJECT, TileDecoration.CLEAN, 2)
                 else:
-                    dungeonArray[i][j] = DungeonTile(TileType.FLOOR, TileDecoration.WATER, 2)
+                    dungeonArray[i, j] = DungeonTile(TileType.FLOOR, TileDecoration.WATER, 2)
             else:
                 if j <= 1:
-                    dungeonArray[i][j] = DungeonTile(TileType.FLOOR, TileDecoration.CLEAN, 1)
+                    dungeonArray[i, j] = DungeonTile(TileType.FLOOR, TileDecoration.CLEAN, 1)
                 elif j <= 4:
-                    dungeonArray[i][j] = DungeonTile(TileType.FLOOR, TileDecoration.OVERGROWN, 1)
+                    dungeonArray[i, j] = DungeonTile(TileType.FLOOR, TileDecoration.OVERGROWN, 1)
                 else:
-                    dungeonArray[i][j] = DungeonTile(TileType.FLOOR, TileDecoration.CRACKED, 1)
+                    dungeonArray[i, j] = DungeonTile(TileType.FLOOR, TileDecoration.CRACKED, 1)
     for i in range(7):
         toPrint = ""
         for j in range(7):
-            toPrint = toPrint + dungeonArray[i][j].display
+            toPrint = toPrint + dungeonArray[i, j].display
         print(toPrint)
     return dungeonArray
 

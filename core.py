@@ -89,5 +89,3 @@ def generateTestDungeon():
             toPrint = toPrint + dungeonArray[i, j].display
         print(toPrint)
     return dungeonArray
-
-testDungeon = generateTestDungeon()

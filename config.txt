@@ -1,0 +1,9 @@
+logLevel = 4
+
+logLevel explained:
+0 -> no messages logged
+1 -> minimal log
+2 -> default end-user log level
+3 -> minimal debugging log level
+4 -> extended debugging log level
+5 -> spam the log file with everything the program is doing

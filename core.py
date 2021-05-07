@@ -25,6 +25,7 @@ class DungeonTile:
         self.neighbors = {}
         self.x = 0
         self.y = 0
+        self.visited = False
     def __init__(self, _tileType, _tileDecoration, _height, _x, _y):
         self.tileType = _tileType
         self.tileDecoration = _tileDecoration
@@ -33,6 +34,7 @@ class DungeonTile:
         self.neighbors = {}
         self.x = _x
         self.y = _y
+        self.visited = False
         # the following code is for debugging purposes only
         if _tileType == TileType.WALL:
             if _tileDecoration == TileDecoration.CLEAN:

@@ -68,34 +68,54 @@ def generateRoom(_dimX = 7, _dimY = 7, _doors = [False, False, False, False], _i
         if _dimY % 2 == 0:
             typeLayer[0][_dimY/2] = 3
             typeLayer[0][_dimY/2 - 1] = 3
+            heightLayer[0][_dimY/2] = heightLayer[1][_dimY/2]
+            heightLayer[0][_dimY/2 - 1] = heightLayer[0][_dimY/2]
         else:
             typeLayer[0][_dimY/2 + 0.5] = 3
             typeLayer[0][_dimY/2 - 0.5] = 3
             typeLayer[0][_dimY/2 - 1.5] = 3
+            heightLayer[0][_dimY/2 - 0.5] = heightLayer[1][_dimY/2 - 0.5]
+            heightLayer[0][_dimY/2 + 0.5] = heightLayer[0][_dimY/2 - 0.5]
+            heightLayer[0][_dimY/2 - 1.5] = heightLayer[0][_dimY/2 - 0.5]
     if _doors[1]:
         if _dimX % 2 == 0:
             typeLayer[_dimX/2][_dimY - 1] = 3
             typeLayer[_dimX/2 - 1][_dimY - 1] = 3
+            heightLayer[_dimX/2][_dimY - 1] = heightLayer[_dimX/2][_dimY - 2]
+            heightLayer[_dimX/2 - 1][_dimY - 1] = heightLayer[_dimX/2][_dimY - 1]
         else:
             typeLayer[_dimX/2 + 0.5][_dimY - 1] = 3
             typeLayer[_dimX/2 - 0.5][_dimY - 1] = 3
             typeLayer[_dimX/2 - 1.5][_dimY - 1] = 3
+            heightLayer[_dimX/2 - 0.5][_dimY - 1] = heightLayer[_dimX/2 - 0.5][_dimY - 2]
+            heightLayer[_dimX/2 + 0.5][_dimY - 1] = heightLayer[_dimX/2 - 0.5][_dimY - 1]
+            heightLayer[_dimX/2 - 1.5][_dimY - 1] = heightLayer[_dimX/2 - 0.5][_dimY - 1]
     if _doors[2]:
         if _dimY % 2 == 0:
             typeLayer[_dimX - 1][_dimY/2] = 3
             typeLayer[_dimX - 1][_dimY/2 - 1] = 3
+            heightLayer[_dimX - 1][_dimY/2] = heightLayer[_dimX - 2][_dimY/2]
+            heightLayer[_dimX - 1][_dimY/2 - 1] = heightLayer[_dimX - 1][_dimY/2]
         else:
             typeLayer[_dimX - 1][_dimY/2 + 0.5] = 3
             typeLayer[_dimX - 1][_dimY/2 - 0.5] = 3
             typeLayer[_dimX - 1][_dimY/2 - 1.5] = 3
+            heightLayer[_dimX - 1][_dimY/2 - 0.5] = heightLayer[_dimX - 2][_dimY/2 - 0.5]
+            heightLayer[_dimX - 1][_dimY/2 + 0.5] = heightLayer[_dimX - 1][_dimY/2 - 0.5]
+            heightLayer[_dimX - 1][_dimY/2 - 1.5] = heightLayer[_dimX - 1][_dimY/2 - 0.5]
     if _doors[3]:
         if _dimX % 2 == 0:
             typeLayer[_dimX/2][0] = 3
             typeLayer[_dimX/2 - 1][0] = 3
+            heightLayer[_dimX/2][0] = heightLayer[_dimX/2][1]
+            heightLayer[_dimX/2 - 1][0] = heightLayer[_dimX/2][0]
         else:
             typeLayer[_dimX/2 + 0.5][0] = 3
             typeLayer[_dimX/2 - 0.5][0] = 3
             typeLayer[_dimX/2 - 1.5][0] = 3
+            heightLayer[_dimX/2 - 0.5][0] = heightLayer[_dimX/2 - 0.5][1]
+            heightLayer[_dimX/2 + 0.5][0] = heightLayer[_dimX/2 - 0.5][0]
+            heightLayer[_dimX/2 - 1.5][0] = heightLayer[_dimX/2 - 0.5][0]
     for i in range(_dimX):
         for j in range(_dimY):
             if (i == 0 or j == 0):

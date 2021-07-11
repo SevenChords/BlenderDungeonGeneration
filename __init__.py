@@ -5,8 +5,14 @@ bl_info = {
 "category" : "Add Mesh"
 }
 from . import core
+from . import generator
 from . import main
+from . import config
+from . import logger
 import bpy
+import subprocess
+import sys
+import os
 
 class myop(bpy.types.Operator):
 
@@ -21,11 +27,16 @@ class myop(bpy.types.Operator):
     
     def execute(self, context):
         from . import core
+        from . import generator
         from . import main
+        from . import config
+        from . import logger
         main.Generation()
         return{"FINISHED"}
     
 def register():
+    python = os.path.join(sys.prefix, 'bin', 'python.exe')
+    subprocess.call([python, "-m", "pip", "install", "perlin_noise"])
     bpy.utils.register_class(myop)
 
 def unregister():

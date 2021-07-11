@@ -1,7 +1,7 @@
 import sys
 import os
 import time
-from config import getConfig
+from .config import getConfig
 
 def initLogging():
     global bdLogFileObject

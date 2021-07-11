@@ -1,7 +1,7 @@
 from typing import Dict
 from perlin_noise import PerlinNoise as pn
-from core import DungeonTile, TileType
-from logger import log
+from .core import DungeonTile, TileType
+from .logger import log
 from random import randint
 from sys import maxsize
 
@@ -180,13 +180,13 @@ def generateBridge(_isDecorated = False, _octaves = 1, _seed = 0, _vertical = Fa
     bridgeDict: DungeonTile = {}
 
     if _vertical:
-        bridgeDict |= generateRoom(_length, 5, [True, False, True, False], _isDecorated, _octaves, _seed, _height, _xOffset, _yOffset, False)["room"]
+        bridgeDict.update(generateRoom(_length, 5, [True, False, True, False], _isDecorated, _octaves, _seed, _height, _xOffset, _yOffset, False)["room"])
         if _width1 == 2:
             bridgeDict[_xOffset, _yOffset + 3].tileType = TileType.WALL
         if _width2 == 2:
             bridgeDict[_xOffset + _length - 1, _yOffset + 3].tileType = TileType.WALL
     else:
-        bridgeDict |= generateRoom(5, _length, [False, True, False, True], _isDecorated, _octaves, _seed, _height, _xOffset, _yOffset, False)["room"]
+        bridgeDict.update(generateRoom(5, _length, [False, True, False, True], _isDecorated, _octaves, _seed, _height, _xOffset, _yOffset, False)["room"])
         if _width1 == 2:
             bridgeDict[_xOffset + 3, _yOffset].tileType = TileType.WALL
         if _width2 == 2:
@@ -279,7 +279,7 @@ def generateDungeon(_isDecorated = True, _octaves = 1, _seed = 0, _minSize = 15,
     result[8] = generateBridge(_isDecorated, _octaves, _seed, True , result[2]["doorWidths"][2], result[4]["doorWidths"][0], offsets[8, 0], offsets[8, 1], result[2]["doorHeights"][2], bridgeLengths[3])
 
     for i in range(9):
-        dungeon |= result[i]["room"]
+        dungeon.update(result[i]["room"])
 
     for tile in dungeon.values():
         i = -1

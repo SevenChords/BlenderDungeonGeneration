@@ -3,13 +3,13 @@ from typing import Type
 from bpy.ops import image
 
 from .core import TileDecoration, TileType
-from .generator import generateRoom;
+from .generator import generateDungeon;
 import bpy
 
 class Generation:
     
     def __init__(self):
-        self.dungeonarray = generateRoom()
+        self.dungeonarray = generateDungeon(_seed=5197940866104999756)
         self.nameArr = []
         self.minheight = self.getLowestTile()
         self.wallheight = 4

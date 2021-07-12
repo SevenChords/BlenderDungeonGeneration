@@ -4,11 +4,6 @@ bl_info = {
 "blender": (2, 92, 0),
 "category" : "Add Mesh"
 }
-from . import core
-from . import generator
-from . import main
-from . import config
-from . import logger
 import bpy
 import subprocess
 import sys
@@ -35,7 +30,10 @@ class myop(bpy.types.Operator):
         return{"FINISHED"}
     
 def register():
-    python = os.path.join(sys.prefix, 'bin', 'python.exe')
+    if os.name == "nt":
+        python = os.path.join(sys.prefix, "bin", "python.exe")
+    if os.name == "posix":
+        python = os.path.join(sys.prefix, "bin", "python3.7m")
     subprocess.call([python, "-m", "pip", "install", "perlin_noise"])
     bpy.utils.register_class(myop)
 

@@ -186,13 +186,13 @@ def generateBridge(_isDecorated = False, _octaves = 1, _seed = 0, _vertical = Fa
     if _vertical:
         bridgeDict.update(generateRoom(_length, 5, [True, False, True, False], _isDecorated, _octaves, _seed, _height, _xOffset, _yOffset, False)["room"])
         if _width1 == 2:
-            bridgeDict[_xOffset, _yOffset + 3].tileType = TileType.WALL
+            bridgeDict[_xOffset, _yOffset + 3].tileType = TileType.WALL.value
         if _width2 == 2:
             bridgeDict[_xOffset + _length - 1, _yOffset + 3].tileType = TileType.WALL
     else:
         bridgeDict.update(generateRoom(5, _length, [False, True, False, True], _isDecorated, _octaves, _seed, _height, _xOffset, _yOffset, False)["room"])
         if _width1 == 2:
-            bridgeDict[_xOffset + 3, _yOffset].tileType = TileType.WALL
+            bridgeDict[_xOffset + 3, _yOffset].tileType = TileType.WALL.value
         if _width2 == 2:
             bridgeDict[_xOffset + 3, _yOffset + _length - 1].tileType = TileType.WALL
     

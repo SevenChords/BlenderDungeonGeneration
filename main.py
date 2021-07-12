@@ -130,6 +130,7 @@ class Generation:
         stonebrick_image_node = nodes.new("ShaderNodeTexImage")
         stonebrick_image_node.image = bpy.data.images["stonebrick.png"]
         stonebrick_image_node.projection = "BOX"
+        stonebrick_image_node.interpolation = "Closest"
         
         stonebrick_geometry_node = nodes.new("ShaderNodeNewGeometry")
 
@@ -186,6 +187,7 @@ class Generation:
             vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height))
             bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
         bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
+        bmesh.utils.face_join(bm.faces, True)
         bm.to_mesh(mesh)
         bm.free()
         self.add_texture(vdict_type)

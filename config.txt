@@ -1,4 +1,4 @@
-[logLevel = 4]
+[logLevel = 2]
 
 logLevel explained:
 0 -> no messages logged

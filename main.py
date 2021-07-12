@@ -2,9 +2,14 @@ from typing import Type
 
 from bpy.ops import image
 
-from .core import TileDecoration, TileType
-from .generator import generateDungeon
-from .logger import log
+if __package__ is None or __package__ == "":
+    from core import TileDecoration, TileType
+    from generator import generateDungeon
+    from logger import log
+else:
+    from .core import TileDecoration, TileType
+    from .generator import generateDungeon
+    from .logger import log
 import bpy
 import bmesh
 import mathutils

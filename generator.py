@@ -1,7 +1,11 @@
 from typing import Dict
 from perlin_noise import PerlinNoise as pn
-from .core import DungeonTile, TileType
-from .logger import log
+if __package__ is None or __package__ == "":
+    from core import DungeonTile, TileType
+    from logger import log
+else:
+    from .core import DungeonTile, TileType
+    from .logger import log
 from random import randint
 from sys import maxsize
 

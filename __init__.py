@@ -21,11 +21,18 @@ class myop(bpy.types.Operator):
         return True
     
     def execute(self, context):
-        from . import core
-        from . import generator
-        from . import main
-        from . import config
-        from . import logger
+        if __package__ is None or __package__ == "":
+            import core
+            import generator
+            import main
+            import config
+            import logger
+        else:
+            from . import core
+            from . import generator
+            from . import main
+            from . import config
+            from . import logger
         main.Generation()
         return{"FINISHED"}
     

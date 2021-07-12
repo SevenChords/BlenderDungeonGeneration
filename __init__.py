@@ -4,11 +4,6 @@ bl_info = {
 "blender": (2, 92, 0),
 "category" : "Add Mesh"
 }
-from . import core
-from . import generator
-from . import main
-from . import config
-from . import logger
 import bpy
 import subprocess
 import sys

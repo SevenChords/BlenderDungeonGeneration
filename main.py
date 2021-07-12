@@ -3,8 +3,11 @@ from typing import Type
 from bpy.ops import image
 
 from .core import TileDecoration, TileType
-from .generator import generateDungeon;
+from .generator import generateDungeon
+from .logger import log
 import bpy
+import bmesh
+import mathutils
 
 class Generation:
     
@@ -20,30 +23,98 @@ class Generation:
 
 
     def generate(self):
-        for tile in self.dungeonarray.values():
-            if(not tile.visited):
-                self.recursion(tile)
+        wallDict = {"clean": {}, "overgrown": {}, "cracked": {}}
+        wallObjectDict = {"clean": {}, "overgrown": {}, "cracked": {}}
+        floorDict = {"clean": {}, "overgrown": {}, "cracked": {}, "puddle": {}, "water": {}}
+        floorObjectDict = {"clean": {}, "overgrown": {}, "cracked": {}, "puddle": {}}
+        doorDict = {"clean": {}, "overgrown": {}, "cracked": {}}
 
-                if(tile.tileDecoration == TileDecoration.PUDDLE.value):
-                    ob = bpy.context.object
-                    bpy.ops.object.mode_set(mode = "EDIT")
-                    bpy.ops.mesh.select_mode(type="VERT")
-                    bpy.ops.mesh.select_all(action = "DESELECT")
-                    bpy.ops.object.mode_set(mode = "OBJECT")
-                    for i, v in enumerate(ob.data.vertices):
-                        if(v.co[2] > 0):
-                            v.select = True
-                    bpy.ops.object.mode_set(mode = "EDIT") 
-                    bpy.ops.mesh.inset(thickness=0.2, depth=-0.1, release_confirm=True)
-                    bpy.ops.object.mode_set(mode = "OBJECT")
-                self.nameArr = []
-                bpy.ops.object.origin_set(type="ORIGIN_CENTER_OF_VOLUME", center="MEDIAN")                      
-        bpy.ops.outliner.orphans_purge()
+        for tile in self.dungeonarray.values():
+            if tile.tileType == TileType.WALL.value:
+                if tile.tileDecoration == TileDecoration.CLEAN.value:
+                    wallDict["clean"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.OVERGROWN.value:
+                    wallDict["overgrown"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.CRACKED.value:
+                    wallDict["cracked"][tile.x, tile.y] = tile
+            if tile.tileType == TileType.WALL_WITH_OBJECT.value:
+                if tile.tileDecoration == TileDecoration.CLEAN.value:
+                    wallObjectDict["clean"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.OVERGROWN.value:
+                    wallObjectDict["overgrown"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.CRACKED.value:
+                    wallObjectDict["cracked"][tile.x, tile.y] = tile
+            if tile.tileType == TileType.FLOOR.value:
+                if tile.tileDecoration == TileDecoration.CLEAN.value:
+                    floorDict["clean"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.OVERGROWN.value:
+                    floorDict["overgrown"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.CRACKED.value:
+                    floorDict["cracked"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.PUDDLE.value:
+                    floorDict["puddle"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.WATER.value:
+                    floorDict["water"][tile.x, tile.y] = tile
+            if tile.tileType == TileType.FLOOR_WITH_OBJECT.value:
+                if tile.tileDecoration == TileDecoration.CLEAN.value:
+                    floorObjectDict["clean"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.OVERGROWN.value:
+                    floorObjectDict["overgrown"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.CRACKED.value:
+                    floorObjectDict["cracked"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.PUDDLE.value:
+                    floorObjectDict["puddle"][tile.x, tile.y] = tile
+            if tile.tileType == TileType.DOOR.value:
+                if tile.tileDecoration == TileDecoration.CLEAN.value:
+                    doorDict["clean"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.OVERGROWN.value:
+                    doorDict["overgrown"][tile.x, tile.y] = tile
+                if tile.tileDecoration == TileDecoration.CRACKED.value:
+                    doorDict["cracked"][tile.x, tile.y] = tile
+
+        log(2, "Mesh", "", "", "sorting done")
+        
+        mesh = bpy.data.meshes.new('Walls_Clean')
+        walls_clean = bpy.data.objects.new("Walls_Clean", mesh)
+        bpy.context.collection.objects.link(walls_clean)
+        bpy.context.view_layer.objects.active = walls_clean
+        walls_clean.select_set(True)
+        bm = bmesh.new()
+        for tile in wallDict["clean"].values():
+            for i in range(7):
+                vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height + i/2))
+                bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
+        bm.to_mesh(mesh)
+        bm.free()
+            
+        log(2, "Mesh", "", "", "clean walls done")
+
+        # for tile in self.dungeonarray.values():
+        #     if(not tile.visited):
+        #         self.recursion(tile)
+
+        #         if(tile.tileDecoration == TileDecoration.PUDDLE.value):
+        #             ob = bpy.context.object
+        #             bpy.ops.object.mode_set(mode = 'EDIT')
+        #             bpy.ops.mesh.select_mode(type="VERT")
+        #             bpy.ops.mesh.select_all(action = 'DESELECT')
+        #             bpy.ops.object.mode_set(mode = 'OBJECT')
+        #             for i, v in enumerate(ob.data.vertices):
+        #                 if(v.co[2] > 0):
+        #                     v.select = True
+        #             bpy.ops.object.mode_set(mode = 'EDIT') 
+        #             bpy.ops.mesh.inset(thickness=0.2, depth=-0.1, release_confirm=True)
+        #             bpy.ops.object.mode_set(mode = 'OBJECT')
+        #         self.nameArr = []
+        #         bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME', center='MEDIAN')                      
+        #bpy.ops.outliner.orphans_purge()
 
 
     def recursion(self, tile):
         if(tile.tileType == TileType.WALL.value):
             bpy.ops.mesh.primitive_cube_add(align="WORLD", location=(0.5 * tile.x, 0.5 * tile.y, tile.height + self.wallheight/2 - 0.25), scale=(0.5, 0.5, self.wallheight))
+            bpy.ops.mesh.primitive_cube_add(align='WORLD', location=(0.5 * tile.x, 0.5 * tile.y, tile.height - 1.75 + 0.5 * self.wallheight), scale=(0.5, 0.5, self.wallheight))
             tile.visited = True
             cube = bpy.context.object
             cube.name = "Wall"           

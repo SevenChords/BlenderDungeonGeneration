@@ -30,7 +30,10 @@ class myop(bpy.types.Operator):
         return{"FINISHED"}
     
 def register():
-    python = os.path.join(sys.prefix, 'bin', 'python.exe')
+    if os.name == "nt":
+        python = os.path.join(sys.prefix, "bin", "python.exe")
+    if os.name == "posix":
+        python = os.path.join(sys.prefix, "bin", "python3.7m")
     subprocess.call([python, "-m", "pip", "install", "perlin_noise"])
     bpy.utils.register_class(myop)
 

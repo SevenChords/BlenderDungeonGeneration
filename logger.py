@@ -1,7 +1,10 @@
 import sys
 import os
 import time
-from .config import getConfig
+if __package__ is None or __package__ == "":
+    from config import getConfig
+else:
+    from .config import getConfig
 
 def initLogging():
     global bdLogFileObject

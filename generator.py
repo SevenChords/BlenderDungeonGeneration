@@ -205,7 +205,7 @@ def offsetHeight(_dungeon, _offset):
         _dungeon["doorHeights"][i] += _offset
     return _dungeon
 
-def generateDungeon(_isDecorated = True, _octaves = 1, _seed = 0, _minSize = 15, _maxSize = 30):
+def generateDungeon(_isDecorated = True, _octaves = 1, _seed = 0, _minSize = 25, _maxSize = 40):
     if _seed == 0:
         _seed = randint(1, maxsize)
 

@@ -1,4 +1,5 @@
 from typing import Type
+from bmesh.types import BMVert
 
 from bpy.ops import image
 
@@ -8,12 +9,13 @@ from .logger import log
 import bpy
 import bmesh
 import mathutils
+from mathutils.bvhtree import BVHTree
 
 class Generation:
     
     def __init__(self):
         bpy.ops.outliner.orphans_purge()
-        self.dungeonarray = generateDungeon()
+        self.dungeonarray = generateDungeon(_seed = 5216211572811331767)
         self.nameArr = []
         self.minheight = self.getLowestTile()
         self.wallheight = 4
@@ -74,99 +76,29 @@ class Generation:
 
         log(2, "Mesh", "", "", "sorting done")
         
-        mesh = bpy.data.meshes.new('Walls_Clean')
-        walls_clean = bpy.data.objects.new("Walls_Clean", mesh)
-        bpy.context.collection.objects.link(walls_clean)
-        bpy.context.view_layer.objects.active = walls_clean
-        walls_clean.select_set(True)
-        bm = bmesh.new()
-        for tile in wallDict["clean"].values():
-            for i in range(7):
-                vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height + i/2))
-                bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
-        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
-        bm.to_mesh(mesh)
-        bm.free()
-            
-        log(2, "Mesh", "", "", "clean walls done")
+        self.walls("Walls_Clean", "clean", wallDict)
+        self.walls("Walls_Overgrown", "overgrown", wallDict)
+        self.walls("Walls_Cracked", "cracked", wallDict)
 
-        # for tile in self.dungeonarray.values():
-        #     if(not tile.visited):
-        #         self.recursion(tile)
+        self.walls("Walls_W_Obj_Clean", "clean", wallObjectDict)
+        self.walls("Walls_W_Obj_Overgrown", "overgrown", wallObjectDict)
+        self.walls("Walls_W_Obj_Cracked", "cracked", wallObjectDict)
 
-        #         if(tile.tileDecoration == TileDecoration.PUDDLE.value):
-        #             ob = bpy.context.object
-        #             bpy.ops.object.mode_set(mode = 'EDIT')
-        #             bpy.ops.mesh.select_mode(type="VERT")
-        #             bpy.ops.mesh.select_all(action = 'DESELECT')
-        #             bpy.ops.object.mode_set(mode = 'OBJECT')
-        #             for i, v in enumerate(ob.data.vertices):
-        #                 if(v.co[2] > 0):
-        #                     v.select = True
-        #             bpy.ops.object.mode_set(mode = 'EDIT') 
-        #             bpy.ops.mesh.inset(thickness=0.2, depth=-0.1, release_confirm=True)
-        #             bpy.ops.object.mode_set(mode = 'OBJECT')
-        #         self.nameArr = []
-        #         bpy.ops.object.origin_set(type='ORIGIN_CENTER_OF_VOLUME', center='MEDIAN')                      
-        #bpy.ops.outliner.orphans_purge()
+        log(2, "Mesh", "", "", "walls done")
 
+        self.floor("Floor_Clean", "clean", floorDict)
+        self.floor("Floor_Overgrown", "overgrown", floorDict)
+        self.floor("Floor_Cracked", "cracked", floorDict)
+        self.floor("Floor_Puddle", "puddle", floorDict)
+        self.floor("Floor_Water", "water", floorDict)
 
-    def recursion(self, tile):
-        if(tile.tileType == TileType.WALL.value):
-            bpy.ops.mesh.primitive_cube_add(align="WORLD", location=(0.5 * tile.x, 0.5 * tile.y, tile.height + self.wallheight/2 - 0.25), scale=(0.5, 0.5, self.wallheight))
-            bpy.ops.mesh.primitive_cube_add(align='WORLD', location=(0.5 * tile.x, 0.5 * tile.y, tile.height - 1.75 + 0.5 * self.wallheight), scale=(0.5, 0.5, self.wallheight))
-            tile.visited = True
-            cube = bpy.context.object
-            cube.name = "Wall"           
-
-        if(tile.tileType == TileType.WALL_WITH_OBJECT.value):
-            bpy.ops.mesh.primitive_cube_add(align="WORLD", location=(0.5 * tile.x, 0.5 * tile.y, tile.height + self.wallheight/2 - 0.25), scale=(0.5, 0.5, self.wallheight))
-            tile.visited = True
-            cube = bpy.context.object
-            cube.name = "Wall"
-
-        if(tile.tileType == TileType.FLOOR.value):
-            if(tile.height == self.minheight):
-                bpy.ops.mesh.primitive_cube_add(align="WORLD", location=(0.5 * tile.x, 0.5 * tile.y, tile.height), scale=(0.5, 0.5, 0.5))
-            else:
-                bpy.ops.mesh.primitive_cube_add(align="WORLD", location=(0.5 * tile.x, 0.5 * tile.y,  tile.height), scale=(0.5, 0.5, 0.5))
-            
-            tile.visited = True
-            cube = bpy.context.object
-            cube.name = "Floor"
-
-        if(tile.tileType == TileType.FLOOR_WITH_OBJECT.value):
-            bpy.ops.mesh.primitive_cube_add(align="WORLD", location=(0.5 * tile.x, 0.5 * tile.y,tile.height), scale=(0.5, 0.5, 0.5))
-            tile.visited = True
-            cube = bpy.context.object
-            cube.name = "Floor"
+        self.floor("Floor_W_Obj_Clean", "clean", floorObjectDict)
+        self.floor("Floor_W_Obj_Overgrown", "overgrown", floorObjectDict)
+        self.floor("Floor_W_Obj_Cracked", "cracked", floorObjectDict)
+        self.floor("Floor_W_Obj_Puddle", "puddle", floorObjectDict)
         
-
-        ob = bpy.context.active_object
-        if(tile.tileDecoration == TileDecoration.CLEAN.value or tile.tileDecoration == TileDecoration.PUDDLE.value):
-            if ob.data.materials:
-                # assign to 1st material slot
-                ob.data.materials[0] = self.stonebrick
-            else:
-                # no slots
-                ob.data.materials.append(self.stonebrick)
-
-        if(tile.tileDecoration == TileDecoration.CRACKED.value):
-            if ob.data.materials:
-                # assign to 1st material slot
-                ob.data.materials[0] = self.stonebrick_cracked
-            else:
-                # no slots
-                ob.data.materials.append(self.stonebrick_cracked)
-
-        if(tile.tileDecoration == TileDecoration.OVERGROWN.value or tile.tileDecoration == TileDecoration.WATER.value):
-            if ob.data.materials:
-                # assign to 1st material slot
-                ob.data.materials[0] = self.stonebrick_mossy
-            else:
-                # no slots
-                ob.data.materials.append(self.stonebrick_mossy)            
-
+        log(2, "Mesh", "", "", "floor done")
+        bpy.ops.outliner.orphans_purge()              
 
     def getLowestTile(self):
         minZ = 3
@@ -198,15 +130,15 @@ class Generation:
         stonebrick.node_tree.links.new(stonebrick_mapping_node.outputs[0], stonebrick_image_node.inputs[0])
         stonebrick.node_tree.links.new(stonebrick_image_node.outputs[0], stonebrick_bsdf.inputs[0])
 
-        stonebrick_cracked = bpy.data.materials.new("stonebrick_cracked")
         stonebrick_cracked = stonebrick.copy()
+        stonebrick_cracked.name = "stonebrick_cracked"
         nodes = stonebrick_cracked.node_tree.nodes
 
         stonebrick_cracked_image_node = nodes.get("Image Texture")
         stonebrick_cracked_image_node.image = bpy.data.images["stonebrick_cracked.png"]
     
-        stonebrick_mossy = bpy.data.materials.new("stonebrick_mossy")
         stonebrick_mossy = stonebrick.copy()
+        stonebrick_mossy.name = "stonebrick_mossy"
         nodes = stonebrick_mossy.node_tree.nodes
 
         stonebrick_mossy_image_node = nodes.get("Image Texture")
@@ -215,18 +147,122 @@ class Generation:
 
         return stonebrick , stonebrick_cracked, stonebrick_mossy
 
+    def walls(self, wall_name, vdict_type, dict):
+        mesh = bpy.data.meshes.new(wall_name)
+        wall = bpy.data.objects.new(wall_name, mesh)
+        bpy.context.collection.objects.link(wall)
+        bpy.context.view_layer.objects.active = wall
+        wall.select_set(True)
+        bm = bmesh.new()
+        for tile in dict[vdict_type].values():
+            for i in range(7):
+                vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height + i/2))
+                bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
+
+        bvhtree = BVHTree().FromBMesh(bm, epsilon=1e-7)
+        faces = bm.faces[:]
+
+        remove = list()
+        while faces:        
+            f = faces.pop()        
+            pair = bvhtree.find_nearest_range(f.calc_center_median(), 1e-4)
+            if len(pair) > 2:
+                # mark face for removal
+                remove.extend(p[2] for p in pair)
         
+        bm.faces.ensure_lookup_table()
+        bmesh.ops.delete(bm,geom=[bm.faces[i] for i in set(remove)],context='FACES_KEEP_BOUNDARY',)
+
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
+
+        bmesh.ops.dissolve_limit(bm, angle_limit=0.08, use_dissolve_boundaries=True, verts=bm.verts, edges=bm.edges)
+
+        bm.to_mesh(mesh)
+        bm.free()
+        self.add_texture(vdict_type)
 
 
 
-
+    def floor(self, floor_name, vdict_type, dict):
+        mesh = bpy.data.meshes.new(floor_name)
+        floor = bpy.data.objects.new(floor_name, mesh)
+        bpy.context.collection.objects.link(floor)
+        bpy.context.view_layer.objects.active = floor
+        floor.select_set(True)
+        bm = bmesh.new()
+        for tile in dict[vdict_type].values():
+            vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height))
+            bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
         
+        bvhtree = BVHTree().FromBMesh(bm, epsilon=1e-7)
+        faces = bm.faces[:]
+
+        remove = list()
+        while faces:        
+            f = faces.pop()       
+            pair = bvhtree.find_nearest_range(f.calc_center_median(), 1e-4)
+            if len(pair) > 2:
+                # mark face for removal
+                remove.extend(p[2] for p in pair)
+
+        bm.faces.ensure_lookup_table()
+        bmesh.ops.delete(bm,geom=[bm.faces[i] for i in set(remove)],context='FACES_KEEP_BOUNDARY',)
+
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
+
+        bmesh.ops.dissolve_limit(bm, angle_limit=0.08, use_dissolve_boundaries=True, verts=bm.verts, edges=bm.edges)
+
+        if(vdict_type == "puddle"):
+            water_mesh = bpy.data.meshes.new("Water")
+            floor = bpy.data.objects.new("Water", mesh)
+            bpy.context.collection.objects.link(floor)
+            bpy.context.view_layer.objects.active = floor
+            floor.select_set(True)
+            water_bm = bmesh.new()
+            faces = bm.faces[:]
+            inset = list()
+            verts = list()
+            while faces:
+                f = faces.pop()
+                if(f.normal == mathutils.Vector((0,0,1))):
+                    inset.append(f)
+                    for v in f.verts:
+                        verts.append()
+            water_bm.faces.new(f.verts)
+            bmesh.ops.contextual_create(water_bm, geom=water_bm.faces)
+            bmesh.ops.inset_individual(bm, faces=inset, thickness=0.2, depth=-0.1,use_even_offset=True)
+            water_bm.to_mesh(water_mesh)
+            water_bm.free
 
 
+        bm.to_mesh(mesh)
+        bm.free()
+        self.add_texture(vdict_type)
 
 
-        
-        
+    def add_texture(self, deco):
+        ob = bpy.context.active_object
+        if(deco == "clean" or deco == "puddle"):
+            if ob.data.materials:
+                # assign to 1st material slot
+                ob.data.materials[0] = self.stonebrick
+            else:
+                # no slots
+                ob.data.materials.append(self.stonebrick)
 
+        if(deco == "cracked"):
+            if ob.data.materials:
+                # assign to 1st material slot
+                ob.data.materials[0] = self.stonebrick_cracked
+            else:
+                # no slots
+                ob.data.materials.append(self.stonebrick_cracked)
 
+        if(deco == "overgrown" or deco == "water"):
+            if ob.data.materials:
+                # assign to 1st material slot
+                ob.data.materials[0] = self.stonebrick_mossy
+            else:
+                # no slots
+                ob.data.materials.append(self.stonebrick_mossy)              
 

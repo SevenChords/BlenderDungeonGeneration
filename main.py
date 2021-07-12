@@ -130,6 +130,7 @@ class Generation:
         stonebrick_image_node = nodes.new("ShaderNodeTexImage")
         stonebrick_image_node.image = bpy.data.images["stonebrick.png"]
         stonebrick_image_node.projection = "BOX"
+        stonebrick_image_node.interpolation = "Closest"
         
         stonebrick_geometry_node = nodes.new("ShaderNodeNewGeometry")
 

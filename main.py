@@ -219,7 +219,7 @@ class Generation:
 
         if(vdict_type == "puddle"):
             water_mesh = bpy.data.meshes.new("Water")
-            floor = bpy.data.objects.new("Water", mesh)
+            floor = bpy.data.objects.new("Water", water_mesh)
             bpy.context.collection.objects.link(floor)
             bpy.context.view_layer.objects.active = floor
             floor.select_set(True)
@@ -232,8 +232,9 @@ class Generation:
                 if(f.normal == mathutils.Vector((0,0,1))):
                     inset.append(f)
                     for v in f.verts:
-                        verts.append()
-            water_bm.faces.new(f.verts)
+                        verts.append(water_bm.verts.new(v.co))
+                    water_bm.faces.new(verts)
+                    verts.clear()
             bmesh.ops.contextual_create(water_bm, geom=water_bm.faces)
             bmesh.ops.inset_individual(bm, faces=inset, thickness=0.2, depth=-0.1,use_even_offset=True)
             water_bm.to_mesh(water_mesh)

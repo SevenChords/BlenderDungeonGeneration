@@ -91,18 +91,25 @@ class Generation:
 
         log(2, "Mesh", "", "", "walls done")
 
-        self.floor("Floor_Clean", "clean", floorDict)
-        self.floor("Floor_Overgrown", "overgrown", floorDict)
-        self.floor("Floor_Cracked", "cracked", floorDict)
-        self.floor("Floor_Puddle", "puddle", floorDict)
-        self.floor("Floor_Water", "water", floorDict)
+        self.floors("Floor_Clean", "clean", floorDict)
+        self.floors("Floor_Overgrown", "overgrown", floorDict)
+        self.floors("Floor_Cracked", "cracked", floorDict)
+        self.floors("Floor_Puddle", "puddle", floorDict)
+        self.floors("Floor_Water", "water", floorDict)
 
-        self.floor("Floor_W_Obj_Clean", "clean", floorObjectDict)
-        self.floor("Floor_W_Obj_Overgrown", "overgrown", floorObjectDict)
-        self.floor("Floor_W_Obj_Cracked", "cracked", floorObjectDict)
-        self.floor("Floor_W_Obj_Puddle", "puddle", floorObjectDict)
+        self.floors("Floor_W_Obj_Clean", "clean", floorObjectDict)
+        self.floors("Floor_W_Obj_Overgrown", "overgrown", floorObjectDict)
+        self.floors("Floor_W_Obj_Cracked", "cracked", floorObjectDict)
+        self.floors("Floor_W_Obj_Puddle", "puddle", floorObjectDict)
         
         log(2, "Mesh", "", "", "floor done")
+
+        self.doors("Door_Clean", "clean", doorDict)
+        self.doors("Door_Overgrown", "overgrown", doorDict)
+        self.doors("Door_Cracked", "cracked", doorDict)
+
+
+
         bpy.ops.outliner.orphans_purge()              
 
     def getLowestTile(self):
@@ -163,32 +170,12 @@ class Generation:
             for i in range(7):
                 vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height + i/2))
                 bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
-
-        bvhtree = BVHTree().FromBMesh(bm, epsilon=1e-7)
-        faces = bm.faces[:]
-
-        remove = list()
-        while faces:        
-            f = faces.pop()        
-            pair = bvhtree.find_nearest_range(f.calc_center_median(), 1e-4)
-            if len(pair) > 2:
-                # mark face for removal
-                remove.extend(p[2] for p in pair)
-        
-        bm.faces.ensure_lookup_table()
-        bmesh.ops.delete(bm,geom=[bm.faces[i] for i in set(remove)],context='FACES_KEEP_BOUNDARY',)
-
         bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
-
-        bmesh.ops.dissolve_limit(bm, angle_limit=0.08, use_dissolve_boundaries=True, verts=bm.verts, edges=bm.edges)
-
         bm.to_mesh(mesh)
         bm.free()
         self.add_texture(vdict_type)
 
-
-
-    def floor(self, floor_name, vdict_type, dict):
+    def floors(self, floor_name, vdict_type, dict):
         mesh = bpy.data.meshes.new(floor_name)
         floor = bpy.data.objects.new(floor_name, mesh)
         bpy.context.collection.objects.link(floor)
@@ -198,52 +185,26 @@ class Generation:
         for tile in dict[vdict_type].values():
             vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height))
             bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
-        
-        bvhtree = BVHTree().FromBMesh(bm, epsilon=1e-7)
-        faces = bm.faces[:]
-
-        remove = list()
-        while faces:        
-            f = faces.pop()       
-            pair = bvhtree.find_nearest_range(f.calc_center_median(), 1e-4)
-            if len(pair) > 2:
-                # mark face for removal
-                remove.extend(p[2] for p in pair)
-
-        bm.faces.ensure_lookup_table()
-        bmesh.ops.delete(bm,geom=[bm.faces[i] for i in set(remove)],context='FACES_KEEP_BOUNDARY',)
-
         bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
-
-        bmesh.ops.dissolve_limit(bm, angle_limit=0.08, use_dissolve_boundaries=True, verts=bm.verts, edges=bm.edges)
-
-        if(vdict_type == "puddle"):
-            water_mesh = bpy.data.meshes.new("Water")
-            floor = bpy.data.objects.new("Water", water_mesh)
-            bpy.context.collection.objects.link(floor)
-            bpy.context.view_layer.objects.active = floor
-            floor.select_set(True)
-            water_bm = bmesh.new()
-            faces = bm.faces[:]
-            inset = list()
-            verts = list()
-            while faces:
-                f = faces.pop()
-                if(f.normal == mathutils.Vector((0,0,1))):
-                    inset.append(f)
-                    for v in f.verts:
-                        verts.append(water_bm.verts.new(v.co))
-                    water_bm.faces.new(verts)
-                    verts.clear()
-            bmesh.ops.contextual_create(water_bm, geom=water_bm.faces)
-            bmesh.ops.inset_individual(bm, faces=inset, thickness=0.2, depth=-0.1,use_even_offset=True)
-            water_bm.to_mesh(water_mesh)
-            water_bm.free
-
-
         bm.to_mesh(mesh)
         bm.free()
         self.add_texture(vdict_type)
+
+    def doors(self, door_name, vdict_type, dict):
+        mesh = bpy.data.meshes.new(door_name)
+        door = bpy.data.objects.new(door_name, mesh)
+        bpy.context.collection.objects.link(door)
+        bpy.context.view_layer.objects.active = door
+        door.select_set(True)
+        bm = bmesh.new()
+        for tile in dict[vdict_type].values():
+            vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height))
+            bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
+        bm.to_mesh(mesh)
+        bm.free()
+        self.add_texture(vdict_type)    
+
 
 
     def add_texture(self, deco):

@@ -35,7 +35,7 @@ def generateRoom(_dimX = 7, _dimY = 7, _doors = [False, False, False, False], _i
     else:
         for i in range(_dimX):
             for j in range(_dimY):
-                heightLayer[i][j] = 0
+                heightLayer[i][j] = _heightOffset
     log(4, "Generator", "Room", "", "height layer generated")
     log(5, "Generator", "Room", "", str(heightLayer))
 
@@ -299,3 +299,5 @@ def generateDungeon(_isDecorated = True, _octaves = 1, _seed = 0, _minSize = 15,
             i += 1
 
     return dungeon
+
+generateDungeon()

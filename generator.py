@@ -31,7 +31,7 @@ def generateRoom(_dimX = 7, _dimY = 7, _doors = [False, False, False, False], _i
             for j in range(_dimY):
                 heightLayer[i][j] -= minHeight
                 heightLayer[i][j] *= scale
-                heightLayer[i][j] = round(heightLayer[i][j], 0)/2 + _heightOffset
+                heightLayer[i][j] = round(heightLayer[i][j], 0)/4 + _heightOffset
     else:
         for i in range(_dimX):
             for j in range(_dimY):
@@ -160,7 +160,7 @@ def generateRoom(_dimX = 7, _dimY = 7, _doors = [False, False, False, False], _i
                     typeLayer[i][j] = 5
                 if decorationLayer[i][j] == 4:
                     decorationLayer[i][j] = 1
-            if heightLayer[i][j] <= 1.0 and _room:
+            if heightLayer[i][j] <= 0.5:
                 if typeLayer[i][j] == 4:
                     typeLayer[i][j] = 1
                 if typeLayer[i][j] == 1:

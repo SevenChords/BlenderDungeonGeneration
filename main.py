@@ -265,6 +265,10 @@ class Generation:
 
         bm.faces.ensure_lookup_table()
         bmesh.ops.delete(bm,geom=[bm.faces[i] for i in set(remove)],context='FACES_KEEP_BOUNDARY',)
+        for f in bm.faces:
+            if(f.normal == mathutils.Vector((0,0,-1))):
+                for v in f.verts:
+                    v.co[2] = v.co[2] - 0.25  
         bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)  
 
         bmesh.ops.dissolve_limit(bm, angle_limit=0.08, use_dissolve_boundaries=True, verts=bm.verts, edges=bm.edges)
@@ -291,7 +295,7 @@ class Generation:
             bmesh.ops.inset_individual(bm, faces=inset, thickness=0.2, depth=-0.1,use_even_offset=True)
             water_bm.to_mesh(water_mesh)
             water_bm.free
-            self.add_texture("water_tile", water_floor)
+            self.add_texture("water_tile", water_floor)         
             
         bm.to_mesh(mesh)
         bm.free()
@@ -311,7 +315,12 @@ class Generation:
             if(f.normal == mathutils.Vector((0,0,-1))):
                 for v in f.verts:
                     v.co[2] = v.co[2] + 0.25
+        for f in bm.faces:
+            if(f.normal == mathutils.Vector((0,0,-1))):
+                for v in f.verts:
+                    v.co[2] = v.co[2] - 0.25
         bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
+
         bm.to_mesh(mesh)
         bm.free()
         self.add_texture(vdict_type, door)    

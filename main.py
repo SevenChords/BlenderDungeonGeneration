@@ -203,8 +203,9 @@ class Generation:
             for i in range(14):
                 vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height + i/4))
                 bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
-                vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height - i/4))
-                bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
+                if i != 0:
+                    vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height - i/4))
+                    bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
 
         for f in bm.faces:
             if(f.normal == mathutils.Vector((0,0,-1))):

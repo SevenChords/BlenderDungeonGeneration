@@ -20,12 +20,12 @@ class Generation:
     
     def __init__(self):
         bpy.ops.outliner.orphans_purge()
-        self.dungeonarray = generateDungeon(_seed = 5216211572811331767)
+        self.dungeonarray = generateDungeon()
         self.nameArr = []
         self.minheight = self.getLowestTile()
         self.wallheight = 4
         self.stonebrick, self.stonebrick_cracked, self.stonebrick_mossy, self.water = self.texture()
-        self.coordinate = {"minX": 0, "minY": 0, "maxX": 0, "maxY": 0}
+        self.coordinate = {"minX": 0, "minY": 0, "maxX": 0, "maxY": 0, "maxZ": -50}
         self.generate()
         
 
@@ -87,6 +87,9 @@ class Generation:
                 self.coordinate["maxX"] = tile.x
             if tile.y > self.coordinate["maxY"]:
                 self.coordinate["maxY"] = tile.y
+            if tile.tileDecoration == TileDecoration.WATER.value:
+                if tile.height > self.coordinate["maxZ"]:
+                    self.coordinate["maxZ"] = tile.height
 
         log(2, "Mesh", "", "", "sorting done")
         
@@ -164,6 +167,9 @@ class Generation:
         stonebrick_mossy = stonebrick.copy()
         stonebrick_mossy.name = "stonebrick_mossy"
         nodes = stonebrick_mossy.node_tree.nodes
+
+        stonebrick_mossy_image_node = nodes.get("Image Texture")
+        stonebrick_mossy_image_node.image = bpy.data.images["stonebrick_mossy.png"]
 
         water = stonebrick.copy()
         water.name = "water"
@@ -306,21 +312,21 @@ class Generation:
         bm.free()
         self.add_texture(vdict_type, door)    
 
-    def water_level(self):
-        mesh = bpy.data.meshes.new("water_tile")
-        water = bpy.data.objects.new("water_tile", mesh)        
-        bpy.context.collection.objects.link(water)
-        bpy.context.view_layer.objects.active = water
-        water.select_set(True)
-        bm = bmesh.new()
-        bm.verts.new((self.coordinate["minX"]/2, self.coordinate["minY"]/2, 0.6 ))
-        bm.verts.new((self.coordinate["minX"]/2, self.coordinate["maxY"]/2, 0.6 ))
-        bm.verts.new((self.coordinate["maxX"]/2, self.coordinate["minY"]/2, 0.6 ))
-        bm.verts.new((self.coordinate["maxX"]/2, self.coordinate["maxY"]/2, 0.6 ))
-        bmesh.ops.contextual_create(bm, geom=bm.verts)
-        bm.to_mesh(mesh)
-        bm.free
-        self.add_texture("water_tile", water)
+    # def water_level(self):
+    #     mesh = bpy.data.meshes.new("water_tile")
+    #     water = bpy.data.objects.new("water_tile", mesh)        
+    #     bpy.context.collection.objects.link(water)
+    #     bpy.context.view_layer.objects.active = water
+    #     water.select_set(True)
+    #     bm = bmesh.new()
+    #     bm.verts.new((self.coordinate["minX"]/2, self.coordinate["minY"]/2, self.coordinate["maxZ"]+ 0.1))
+    #     bm.verts.new((self.coordinate["minX"]/2, self.coordinate["maxY"]/2, self.coordinate["maxZ"]+ 0.1))
+    #     bm.verts.new((self.coordinate["maxX"]/2, self.coordinate["minY"]/2, self.coordinate["maxZ"]+ 0.1))
+    #     bm.verts.new((self.coordinate["maxX"]/2, self.coordinate["maxY"]/2, self.coordinate["maxZ"]+ 0.1))
+    #     bmesh.ops.contextual_create(bm, geom=bm.verts)
+    #     bm.to_mesh(mesh)
+    #     bm.free
+    #     self.add_texture("water_tile", water)
 
 
 

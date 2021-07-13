@@ -173,7 +173,8 @@ def generateRoom(_dimX = 7, _dimY = 7, _doors = [False, False, False, False],
     roomDict = {}
     for i in range(_dimX):
         for j in range(_dimY):
-            roomDict[i + _xOffset, j + _yOffset] = DungeonTile(typeLayer[i][j], decorationLayer[i][j], heightLayer[i][j], i + _xOffset, j + _yOffset)
+            roomDict[i + _xOffset, j + _yOffset] = DungeonTile(typeLayer[i][j], decorationLayer[i][j], heightLayer[i][j],
+                                                                                i + _xOffset, j + _yOffset)
     
     log(4, "Generator", "Room", "", "room dict created")
 
@@ -188,13 +189,15 @@ def generateBridge(_isDecorated = False, _octaves = 1, _seed = 0,
     bridgeDict: DungeonTile = {}
 
     if _vertical:
-        bridgeDict.update(generateRoom(_length, 5, [True, False, True, False], _isDecorated, _octaves, _seed, _height, _xOffset, _yOffset, False)["room"])
+        bridgeDict.update(generateRoom(_length, 5, [True, False, True, False], _isDecorated, _octaves, _seed,
+                                       _height, _xOffset, _yOffset, False)["room"])
         if _width1 == 2:
             bridgeDict[_xOffset, _yOffset + 3].tileType = TileType.WALL.value
         if _width2 == 2:
             bridgeDict[_xOffset + _length - 1, _yOffset + 3].tileType = TileType.WALL.value
     else:
-        bridgeDict.update(generateRoom(5, _length, [False, True, False, True], _isDecorated, _octaves, _seed, _height, _xOffset, _yOffset, False)["room"])
+        bridgeDict.update(generateRoom(5, _length, [False, True, False, True], _isDecorated, _octaves, _seed,
+                                       _height, _xOffset, _yOffset, False)["room"])
         if _width1 == 2:
             bridgeDict[_xOffset + 3, _yOffset].tileType = TileType.WALL.value
         if _width2 == 2:

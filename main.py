@@ -23,7 +23,6 @@ class Generation:
         self.dungeonarray = generateDungeon(_isDecorated=false, _octaves=octaves, _seed=seed, _minSize=min_size, _maxSize=max_size)
         self.nameArr = []
         self.minheight = self.getLowestTile()
-        self.wallheight = 4
         self.stonebrick, self.stonebrick_cracked, self.stonebrick_mossy, self.water = self.texture()
         self.coordinate = {"minX": 0, "minY": 0, "maxX": 0, "maxY": 0, "maxZ": -50}
         self.generate()
@@ -38,7 +37,16 @@ class Generation:
         floorObjectDict = {"clean": {}, "overgrown": {}, "cracked": {}, "puddle": {}}
         doorDict = {"clean": {}, "overgrown": {}, "cracked": {}}
 
+        bottomHeight = 100
+        topHeight = -100
+
         for tile in self.dungeonarray.values():
+
+            if tile.height < bottomHeight:
+                bottomHeight = tile.height
+            if tile.height > topHeight:
+                topHeight = tile.height
+
             if tile.tileType == TileType.WALL.value:
                 if tile.tileDecoration == TileDecoration.CLEAN.value:
                     wallDict["clean"][tile.x, tile.y] = tile
@@ -94,13 +102,13 @@ class Generation:
 
         log(2, "Mesh", "", "", "sorting done")
         
-        self.walls("Walls_Clean", "clean", wallDict)
-        self.walls("Walls_Overgrown", "overgrown", wallDict)
-        self.walls("Walls_Cracked", "cracked", wallDict)
+        self.walls("Walls_Clean", "clean", wallDict, bottomHeight, topHeight)
+        self.walls("Walls_Overgrown", "overgrown", wallDict, bottomHeight, topHeight)
+        self.walls("Walls_Cracked", "cracked", wallDict, bottomHeight, topHeight)
 
-        self.walls("Walls_W_Obj_Clean", "clean", wallObjectDict)
-        self.walls("Walls_W_Obj_Overgrown", "overgrown", wallObjectDict)
-        self.walls("Walls_W_Obj_Cracked", "cracked", wallObjectDict)
+        self.walls("Walls_W_Obj_Clean", "clean", wallObjectDict, bottomHeight, topHeight)
+        self.walls("Walls_W_Obj_Overgrown", "overgrown", wallObjectDict, bottomHeight, topHeight)
+        self.walls("Walls_W_Obj_Cracked", "cracked", wallObjectDict, bottomHeight, topHeight)
 
         log(2, "Mesh", "", "", "walls done")
 
@@ -192,7 +200,8 @@ class Generation:
 
         return stonebrick , stonebrick_cracked, stonebrick_mossy, water
 
-    def walls(self, wall_name, vdict_type, dict):
+    def walls(self, wall_name, vdict_type, dict, _bottomHeight, _topHeight):
+        wallHeight = _topHeight + 2.5 - _bottomHeight
         mesh = bpy.data.meshes.new(wall_name)
         wall = bpy.data.objects.new(wall_name, mesh)
         bpy.context.collection.objects.link(wall)
@@ -200,13 +209,13 @@ class Generation:
         wall.select_set(True)
         bm = bmesh.new()
         for tile in dict[vdict_type].values():
-            vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height -5))
+            vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, _bottomHeight))
             bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
 
         for f in bm.faces:
-            if(f.normal == mathutils.Vector((0,0,-1))):
+            if(f.normal == mathutils.Vector((0,0,1))):
                 for v in f.verts:
-                    v.co[2] = v.co[2] + 15
+                    v.co[2] = v.co[2] + wallHeight
 
         bvhtree = BVHTree().FromBMesh(bm, epsilon=1e-7)
         faces = bm.faces[:]

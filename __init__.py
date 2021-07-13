@@ -36,7 +36,8 @@ class myop(bpy.types.Operator):
         name="Octaves",
         description="Generation Octaves (Can't be 7 or negative)",
         default=1,
-        min=1)
+        min=1,
+        max=9)
 
     @classmethod
     def poll(cls, context):
@@ -122,8 +123,9 @@ class DUNGEON_PROPERTIES(bpy.types.PropertyGroup):
     octaves: bpy.props.IntProperty(
         name="Octaves",
         description="Generation Octaves (Can't be 7 or negative)",
-        default=15,
-        min=7)
+        default=1,
+        min=1,
+        max=9)
 
 blender_classes = [
     DUNGEON_PROPERTIES,

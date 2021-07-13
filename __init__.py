@@ -27,11 +27,10 @@ class myop(bpy.types.Operator):
         default=50,
         min=7,
         soft_max=100)
-    seed: bpy.props.IntProperty(
+    seed: bpy.props.StringProperty(
         name="Seed",
         description="Generation Seed (Can't be negative). 0 creates a random seed.",
-        default=0,
-        min=0)
+        default="0")
     octaves: bpy.props.IntProperty(
         name="Octaves",
         description="Generation Octaves (Can't be 7 or negative)",
@@ -57,7 +56,7 @@ class myop(bpy.types.Operator):
             from . import config
             from . import logger
 
-        main.Generation(False, self.octaves, self.seed, self.min_size, self.max_size)
+        main.Generation(False, self.octaves, abs(int(self.seed)), self.min_size, self.max_size)
         return{"FINISHED"}
 
 
@@ -93,7 +92,7 @@ class VIEW3D_PT_DunGen(bpy.types.Panel):
         if scene.with_seed:
             props.seed = scene.seed
         else:
-            props.seed = 0
+            props.seed = "0"
         props.octaves = scene.octaves
 
 def mesh_add_menu_draw(self, context):
@@ -118,11 +117,10 @@ class DUNGEON_PROPERTIES(bpy.types.PropertyGroup):
         description="If this is set, the seed won't be random",
         default=False
         )
-    seed: bpy.props.IntProperty(
+    seed: bpy.props.StringProperty(
         name="Seed",
         description="Generation Seed (Can't be negative). 0 creates a random seed.",
-        default=0,
-        min=0)
+        default="0")
     octaves: bpy.props.IntProperty(
         name="Octaves",
         description="Generation Octaves (Can't be 7 or negative)",

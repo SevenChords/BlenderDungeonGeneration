@@ -20,7 +20,7 @@ class Generation:
     
     def __init__(self, false, octaves, seed, min_size, max_size):
         bpy.ops.outliner.orphans_purge()
-        self.dungeonarray = generateDungeon(_isDecorated=false, _octaves=octaves, _seed=4913445805773461454, _minSize=min_size, _maxSize=max_size)
+        self.dungeonarray = generateDungeon(_isDecorated=false, _octaves=octaves, _seed=seed, _minSize=min_size, _maxSize=max_size)
         self.nameArr = []
         self.minheight = self.getLowestTile()
         self.wallheight = 4

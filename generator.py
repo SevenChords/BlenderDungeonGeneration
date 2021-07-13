@@ -9,7 +9,9 @@ else:
 from random import randint
 from sys import maxsize
 
-def generateRoom(_dimX = 7, _dimY = 7, _doors = [False, False, False, False], _isDecorated = True, _octaves = 1, _seed = 0, _heightOffset = 0, _xOffset = 0, _yOffset = 0, _room = True):
+def generateRoom(_dimX = 7, _dimY = 7, _doors = [False, False, False, False],
+                 _isDecorated = True, _octaves = 1, _seed = 0, _heightOffset = 0,
+                 _xOffset = 0, _yOffset = 0, _room = True):
 
     while(_dimX < 6 or _dimY < 6) and _room:
         log(3, "Generator", "Room", "", "couldn't start room generation: room size too small. Increasing Roomsize...")
@@ -171,26 +173,31 @@ def generateRoom(_dimX = 7, _dimY = 7, _doors = [False, False, False, False], _i
     roomDict = {}
     for i in range(_dimX):
         for j in range(_dimY):
-            roomDict[i + _xOffset, j + _yOffset] = DungeonTile(typeLayer[i][j], decorationLayer[i][j], heightLayer[i][j], i + _xOffset, j + _yOffset)
+            roomDict[i + _xOffset, j + _yOffset] = DungeonTile(typeLayer[i][j], decorationLayer[i][j], heightLayer[i][j],
+                                                                                i + _xOffset, j + _yOffset)
     
     log(4, "Generator", "Room", "", "room dict created")
 
     return {"room": roomDict, "doorHeights": doorHeights, "doorWidths": doorWidths}
 
-def generateBridge(_isDecorated = False, _octaves = 1, _seed = 0, _vertical = False, _width1 = 2, _width2 = 2, _xOffset = 0, _yOffset = 0, _height = 0, _length = 5):
+def generateBridge(_isDecorated = False, _octaves = 1, _seed = 0,
+                   _vertical = False, _width1 = 2, _width2 = 2,
+                   _xOffset = 0, _yOffset = 0, _height = 0, _length = 5):
     if _seed == 0:
         _seed = randint(1, maxsize)
 
     bridgeDict: DungeonTile = {}
 
     if _vertical:
-        bridgeDict.update(generateRoom(_length, 5, [True, False, True, False], _isDecorated, _octaves, _seed, _height, _xOffset, _yOffset, False)["room"])
+        bridgeDict.update(generateRoom(_length, 5, [True, False, True, False], _isDecorated, _octaves, _seed,
+                                       _height, _xOffset, _yOffset, False)["room"])
         if _width1 == 2:
             bridgeDict[_xOffset, _yOffset + 3].tileType = TileType.WALL.value
         if _width2 == 2:
             bridgeDict[_xOffset + _length - 1, _yOffset + 3].tileType = TileType.WALL.value
     else:
-        bridgeDict.update(generateRoom(5, _length, [False, True, False, True], _isDecorated, _octaves, _seed, _height, _xOffset, _yOffset, False)["room"])
+        bridgeDict.update(generateRoom(5, _length, [False, True, False, True], _isDecorated, _octaves, _seed,
+                                       _height, _xOffset, _yOffset, False)["room"])
         if _width1 == 2:
             bridgeDict[_xOffset + 3, _yOffset].tileType = TileType.WALL.value
         if _width2 == 2:
@@ -256,31 +263,44 @@ def generateDungeon(_isDecorated = True, _octaves = 1, _seed = 0, _minSize = 25,
     offsets[4, 1] = offsets[8, 1] - int(round((sizes[9] - 5)/2, 0))
     
     result = {}
-    result[0] = generateRoom(sizes[0], sizes[1], [False, False, True , False], _isDecorated, _octaves, _seed, 0, offsets[0, 0], offsets[0, 1], True)
-    result[2] = generateRoom(sizes[4], sizes[5], [True , True , True , True ], _isDecorated, _octaves, _seed, 0, offsets[2, 0], offsets[2, 1], True)
+    result[0] = generateRoom(sizes[0], sizes[1], [False, False, True, False],
+                             _isDecorated, _octaves, _seed, 0, offsets[0, 0], offsets[0, 1], True)
+    result[2] = generateRoom(sizes[4], sizes[5], [True, True, True, True],
+                             _isDecorated, _octaves, _seed, 0, offsets[2, 0], offsets[2, 1], True)
     while result[0]["doorHeights"][2] > result[2]["doorHeights"][0]:
         result[2] = offsetHeight(result[2], 0.25)
     while result[0]["doorHeights"][2] < result[2]["doorHeights"][0]:
         result[0] = offsetHeight(result[0], 0.25)
-    result[5] = generateBridge(_isDecorated, _octaves, _seed, True , result[0]["doorWidths"][2], result[2]["doorWidths"][0], offsets[5, 0], offsets[5, 1], result[0]["doorHeights"][2], bridgeLengths[0])
-    result[1] = generateRoom(sizes[2], sizes[3], [False, True , False, False], _isDecorated, _octaves, _seed, 0, offsets[1, 0], offsets[1, 1], True)
+    result[5] = generateBridge(_isDecorated, _octaves, _seed, True,
+                               result[0]["doorWidths"][2], result[2]["doorWidths"][0],
+                               offsets[5, 0], offsets[5, 1], result[0]["doorHeights"][2], bridgeLengths[0])
+    result[1] = generateRoom(sizes[2], sizes[3], [False, True, False, False],
+                             _isDecorated, _octaves, _seed, 0, offsets[1, 0], offsets[1, 1], True)
     while result[1]["doorHeights"][1] > result[2]["doorHeights"][3]:
         result[1] = offsetHeight(result[1], -0.25)
     while result[1]["doorHeights"][1] < result[2]["doorHeights"][3]:
         result[1] = offsetHeight(result[1], 0.25)
-    result[6] = generateBridge(_isDecorated, _octaves, _seed, False, result[1]["doorWidths"][1], result[2]["doorWidths"][3], offsets[6, 0], offsets[6, 1], result[1]["doorHeights"][1], bridgeLengths[1])
-    result[3] = generateRoom(sizes[6], sizes[7], [False, False, False, True ], _isDecorated, _octaves, _seed, 0, offsets[3, 0], offsets[3, 1], True)
+    result[6] = generateBridge(_isDecorated, _octaves, _seed, False,
+                               result[1]["doorWidths"][1], result[2]["doorWidths"][3],
+                               offsets[6, 0], offsets[6, 1], result[1]["doorHeights"][1], bridgeLengths[1])
+    result[3] = generateRoom(sizes[6], sizes[7], [False, False, False, True],
+                             _isDecorated, _octaves, _seed, 0, offsets[3, 0], offsets[3, 1], True)
     while result[3]["doorHeights"][3] > result[2]["doorHeights"][1]:
         result[3] = offsetHeight(result[3], -0.25)
     while result[3]["doorHeights"][3] < result[2]["doorHeights"][1]:
         result[3] = offsetHeight(result[3], 0.25)
-    result[7] = generateBridge(_isDecorated, _octaves, _seed, False, result[2]["doorWidths"][1], result[3]["doorWidths"][3], offsets[7, 0], offsets[7, 1], result[2]["doorHeights"][1], bridgeLengths[2])
-    result[4] = generateRoom(sizes[8], sizes[9], [True , False, False, False], _isDecorated, _octaves, _seed, 0, offsets[4, 0], offsets[4, 1], True)
+    result[7] = generateBridge(_isDecorated, _octaves, _seed, False,
+                               result[2]["doorWidths"][1], result[3]["doorWidths"][3],
+                               offsets[7, 0], offsets[7, 1], result[2]["doorHeights"][1], bridgeLengths[2])
+    result[4] = generateRoom(sizes[8], sizes[9], [True, False, False, False],
+                             _isDecorated, _octaves, _seed, 0, offsets[4, 0], offsets[4, 1], True)
     while result[4]["doorHeights"][0] > result[2]["doorHeights"][2]:
         result[4] = offsetHeight(result[4], -0.25)
     while result[4]["doorHeights"][0] < result[2]["doorHeights"][2]:
         result[4] = offsetHeight(result[4], 0.25)
-    result[8] = generateBridge(_isDecorated, _octaves, _seed, True , result[2]["doorWidths"][2], result[4]["doorWidths"][0], offsets[8, 0], offsets[8, 1], result[2]["doorHeights"][2], bridgeLengths[3])
+    result[8] = generateBridge(_isDecorated, _octaves, _seed, True,
+                               result[2]["doorWidths"][2], result[4]["doorWidths"][0],
+                               offsets[8, 0], offsets[8, 1], result[2]["doorHeights"][2], bridgeLengths[3])
 
     for i in range(9):
         dungeon.update(result[i]["room"])

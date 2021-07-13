@@ -20,7 +20,7 @@ class Generation:
     
     def __init__(self, false, octaves, seed, min_size, max_size):
         bpy.ops.outliner.orphans_purge()
-        self.dungeonarray = generateDungeon(_isDecorated=false, _octaves=octaves, _seed=seed, _minSize=min_size, _maxSize=max_size)
+        self.dungeonarray = generateDungeon(_isDecorated=false, _octaves=octaves, _seed=4913445805773461454, _minSize=min_size, _maxSize=max_size)
         self.nameArr = []
         self.minheight = self.getLowestTile()
         self.wallheight = 4
@@ -268,7 +268,7 @@ class Generation:
         for f in bm.faces:
             if(f.normal == mathutils.Vector((0,0,-1))):
                 for v in f.verts:
-                    v.co[2] = v.co[2] - 0.25  
+                    v.co[2] = v.co[2] - 0.5  
         bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)  
 
         bmesh.ops.dissolve_limit(bm, angle_limit=0.08, use_dissolve_boundaries=True, verts=bm.verts, edges=bm.edges)
@@ -318,7 +318,7 @@ class Generation:
         for f in bm.faces:
             if(f.normal == mathutils.Vector((0,0,-1))):
                 for v in f.verts:
-                    v.co[2] = v.co[2] - 0.25
+                    v.co[2] = v.co[2] - 0.5
         bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.01)
 
         bm.to_mesh(mesh)

@@ -123,7 +123,7 @@ class Generation:
 
         log(2, "Mesh", "", "", "door done")
 
-        self.water_level()
+        # self.water_level()
 
         bpy.ops.outliner.orphans_purge()              
 
@@ -202,6 +202,8 @@ class Generation:
         for tile in dict[vdict_type].values():
             for i in range(14):
                 vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height + i/4))
+                bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
+                vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height - i/4))
                 bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
 
         for f in bm.faces:

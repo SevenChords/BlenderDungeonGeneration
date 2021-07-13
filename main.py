@@ -200,19 +200,13 @@ class Generation:
         wall.select_set(True)
         bm = bmesh.new()
         for tile in dict[vdict_type].values():
-            for i in range(14):
-                vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height + i/4))
-                bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
-                vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height + (i+14)/4))
-                bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
-                if i != 0:
-                    vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height - i/4))
-                    bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
+            vector = mathutils.Vector((tile.x*0.5, tile.y*0.5, tile.height -5))
+            bmesh.ops.create_cube(bm, size=0.5, matrix=mathutils.Matrix.Translation(vector))
 
         for f in bm.faces:
             if(f.normal == mathutils.Vector((0,0,-1))):
                 for v in f.verts:
-                    v.co[2] = v.co[2] + 0.25
+                    v.co[2] = v.co[2] + 15
 
         bvhtree = BVHTree().FromBMesh(bm, epsilon=1e-7)
         faces = bm.faces[:]

@@ -90,7 +90,10 @@ class VIEW3D_PT_DunGen(bpy.types.Panel):
         text='Generate Dungeon')
         props.min_size = scene.min_size
         props.max_size = scene.max_size
-        props.seed = scene.seed
+        if scene.with_seed:
+            props.seed = scene.seed
+        else:
+            props.seed = 0
         props.octaves = scene.octaves
 
 def mesh_add_menu_draw(self, context):

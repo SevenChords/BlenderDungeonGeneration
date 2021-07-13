@@ -10,6 +10,11 @@ import sys
 import os
 
 class myop(bpy.types.Operator):
+    bl_idname = "my_operator.blender_dungeon_generator"
+    bl_label = "Dungeon Generator"
+    bl_description = "It generates a Dungeon DUH"
+    bl_options = {"REGISTER", 'UNDO'}
+
     min_size: bpy.props.IntProperty(
         name="Min room size",
         description="Smallest room size that shall be generated",
@@ -30,13 +35,8 @@ class myop(bpy.types.Operator):
     octaves: bpy.props.IntProperty(
         name="Octaves",
         description="Generation Octaves (Can't be 7 or negative)",
-        default=15,
-        min=7)
-
-    bl_idname = "my_operator.blender_dungeon_generator"
-    bl_label = "Dungeon Generator"
-    bl_description = "It generates a Dungeon DUH"
-    bl_options = {"REGISTER", 'UNDO'}
+        default=1,
+        min=1)
 
     @classmethod
     def poll(cls, context):
